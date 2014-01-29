@@ -26,6 +26,8 @@
 
 @property (nonatomic, readonly) UIImageView *fillBackground;
 @property (nonatomic, readonly) UIImageView *ringBackground;
+@property (nonatomic, readonly) UIImageView *startCap;
+@property (nonatomic, readonly) UIImageView *endCap;
 @property (nonatomic, readonly) CAShapeLayer *arcLayer;
 
 @end
@@ -73,7 +75,25 @@
     _ringBackground.frame = CGRectOffset(_ringBackground.bounds,
                                          self.bounds.size.width / 2.0f - _ringBackground.bounds.size.width / 2.0f,
                                          self.bounds.size.height / 2.0f - _ringBackground.bounds.size.height / 2.0f);
+}
 
+- (void)setStartCapImage:(UIImage *)endCapImage
+{
+    _startCap.image = endCapImage;
+    _startCap.frame = CGRectMake(self.bounds.size.width / 2.0f - endCapImage.size.width,
+                                 -endCapImage.size.height / 2.0f,
+                                 endCapImage.size.width,
+                                 endCapImage.size.height);
+}
+
+- (void)setEndCapImage:(UIImage *)endCapImage
+{
+    _endCap.image = endCapImage;
+    _endCap.frame = CGRectMake(self.bounds.size.width / 2.0f,
+                               self.bounds.size.height / 2.0f - endCapImage.size.height / 2.0f,
+                               endCapImage.size.width,
+                               endCapImage.size.height);
+    [self setEndCapTranform];
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -106,6 +126,11 @@
     
     _ringBackground = [[UIImageView alloc] init];
     [self addSubview: _ringBackground];
+    
+    _startCap = [[UIImageView alloc] init];
+    [self addSubview: _startCap];
+    _endCap = [[UIImageView alloc] init];
+    [self addSubview: _endCap];
     
     [self addTarget:self action:@selector(didTouchDown) forControlEvents:UIControlEventTouchDown];
     [self addTarget:self action:@selector(didTouchUpInside) forControlEvents:UIControlEventTouchUpInside];
@@ -146,6 +171,12 @@
     _arcLayer.frame = CGRectOffset(self.bounds,
                                    _fillBackground.bounds.size.width / 2.0f - self.bounds.size.width / 2.0f,
                                    _fillBackground.bounds.size.height / 2.0f - self.bounds.size.height / 2.0f);
+    _startCap.frame = CGRectMake(self.bounds.size.width / 2.0f - _startCap.image.size.width,
+                                 -_startCap.image.size.height / 2.0f,
+                                 _startCap.image.size.width,
+                                 _startCap.image.size.height);
+    [self setEndCapTranform];
+
     const CGFloat offset = 4;
     CGRect valueLabelRect = self.bounds;
     valueLabelRect.origin.x += offset;
@@ -201,6 +232,19 @@
     return path;
 }
 
+- (void)setEndCapTranform
+{
+    const double TWO_M_PI = 2.0 * M_PI;
+    const double startAngle = 0.75 * TWO_M_PI;
+    const double endAngle = startAngle + TWO_M_PI * self.progress;
+    const CGFloat radius = self.bounds.size.width / 2.0f;
+    
+    _endCap.transform = CGAffineTransformIdentity;
+    _endCap.frame = CGRectMake(radius + (radius * (cos(endAngle))) - _endCap.image.size.width / 2.0f,
+                               radius + (radius * (sin(endAngle))) - _endCap.image.size.height / 2.0f,
+                               _endCap.image.size.width, _endCap.image.size.height);
+    _endCap.transform = CGAffineTransformMakeRotation(endAngle - startAngle);
+}
 
 #pragma mark - Hook tintColor
 
@@ -277,6 +321,7 @@
 - (void)updatePath {
     self.shapeLayer.path = [self layoutPath].CGPath;
     ((CAShapeLayer*)_fillBackground.layer.mask).path = [self layoutMaskPath].CGPath;
+    [self setEndCapTranform];
 }
 
 - (void)updateLabel {
@@ -342,6 +387,7 @@
             self.shapeLayer.path = path.CGPath;
             ((CAShapeLayer*)_fillBackground.layer.mask).path = maskPath.CGPath;
             [self updateLabel];
+            [self setEndCapTranform];
         });
     });
 }

@@ -42,6 +42,12 @@
 @property (nonatomic, strong) UIImage *ringBackgroundImage;
 @property (nonatomic, assign) CGFloat ringBackgroundAlpha;
 
+@property (nonatomic, strong) UIImage *startCapImage;
+@property (nonatomic, assign) CGFloat startCapAlpha;
+
+@property (nonatomic, strong) UIImage *endCapImage;
+@property (nonatomic, assign) CGFloat endCapAlpha;
+
 /**
  Change progress animated.
  
