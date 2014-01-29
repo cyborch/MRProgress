@@ -197,7 +197,8 @@
     self.valueLabel.frame = valueLabelRect;
     
     self.layer.cornerRadius = self.frame.size.width / 2.0f;
-    self.shapeLayer.path = [self layoutPath].CGPath;
+    ((CAShapeLayer*)self.layer).path = [self layoutPath].CGPath;
+    _arcLayer.path = [self layoutPath].CGPath;
     ((CAShapeLayer*)_fillBackground.layer.mask).path = [self layoutMaskPath].CGPath;
 
     CGFloat stopViewSizeValue = MIN(self.bounds.size.width, self.bounds.size.height);
@@ -332,7 +333,8 @@
 }
 
 - (void)updatePath {
-    self.shapeLayer.path = [self layoutPath].CGPath;
+    ((CAShapeLayer*)self.layer).path = [self layoutPath].CGPath;
+    _arcLayer.path = [self layoutPath].CGPath;
     ((CAShapeLayer*)_fillBackground.layer.mask).path = [self layoutMaskPath].CGPath;
     [self setEndCapTranform];
 }
@@ -397,7 +399,8 @@
         UIBezierPath *maskPath = [self layoutMaskPath];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.shapeLayer.path = path.CGPath;
+            ((CAShapeLayer*)self.layer).path = path.CGPath;
+            _arcLayer.path = path.CGPath;
             ((CAShapeLayer*)_fillBackground.layer.mask).path = maskPath.CGPath;
             [self updateLabel];
             [self setEndCapTranform];
