@@ -54,6 +54,7 @@
 
         self.shapeLayer.lineWidth = ((CAShapeLayer*)self.layer).lineWidth;
         self.shapeLayer.fillColor = UIColor.clearColor.CGColor;
+        self.shapeLayer.strokeColor = ((CAShapeLayer*)self.layer).strokeColor;
     } else {
         _fillBackground = nil;
     }
