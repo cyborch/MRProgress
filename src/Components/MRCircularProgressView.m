@@ -97,6 +97,18 @@
     [self setEndCapTranform];
 }
 
+- (void)setStartCapAlpha:(CGFloat)startCapAlpha
+{
+    _startCapAlpha = startCapAlpha;
+    _startCap.alpha = startCapAlpha;
+}
+
+- (void)setEndCapAlpha:(CGFloat)endCapAlpha
+{
+    _endCapAlpha = endCapAlpha;
+    _endCap.alpha = endCapAlpha;
+}
+
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
