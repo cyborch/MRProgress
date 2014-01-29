@@ -24,10 +24,57 @@
 @property (nonatomic, assign, readwrite) CFTimeInterval startTime;
 @property (nonatomic, strong, readwrite) CADisplayLink *displayLink;
 
+@property (nonatomic, readonly) UIImageView *fillBackground;
+@property (nonatomic, readonly) UIImageView *ringBackground;
+@property (nonatomic, readonly) CAShapeLayer *arcLayer;
+
 @end
 
 
 @implementation MRCircularProgressView
+
+- (void)setFillBackgroundAlpha:(CGFloat)fillBackgroundAlpha
+{
+    _fillBackgroundAlpha = fillBackgroundAlpha;
+    _fillBackground.alpha = fillBackgroundAlpha;
+}
+
+- (void)setFillBackgroundImage:(UIImage *)fillBackgroundImage
+{
+    _fillBackgroundImage = fillBackgroundImage;
+    [_fillBackground removeFromSuperview];
+    if (fillBackgroundImage) {
+        _fillBackground = [[UIImageView alloc] initWithImage: _fillBackgroundImage];
+        _fillBackground.layer.mask = [[CAShapeLayer alloc] init];
+        _arcLayer = [[CAShapeLayer alloc] init];
+        [_fillBackground.layer addSublayer: _arcLayer];
+        [self addSubview: _fillBackground];
+
+        self.shapeLayer.lineWidth = ((CAShapeLayer*)self.layer).lineWidth;
+        self.shapeLayer.fillColor = UIColor.clearColor.CGColor;
+    } else {
+        _fillBackground = nil;
+    }
+}
+
+- (void)setRingBackgroundAlpha:(CGFloat)ringBackgroundAlpha
+{
+    _ringBackgroundAlpha = ringBackgroundAlpha;
+    _ringBackground.alpha = ringBackgroundAlpha;
+}
+
+- (void)setRingBackgroundImage:(UIImage *)ringBackgroundImage
+{
+    _ringBackgroundImage = ringBackgroundImage;
+    _ringBackground.image = ringBackgroundImage;
+    _ringBackground.frame = CGRectMake(0.0f, 0.0f,
+                                       _ringBackgroundImage.size.width,
+                                       _ringBackgroundImage.size.height);
+    _ringBackground.frame = CGRectOffset(_ringBackground.bounds,
+                                         self.bounds.size.width / 2.0f - _ringBackground.bounds.size.width / 2.0f,
+                                         self.bounds.size.height / 2.0f - _ringBackground.bounds.size.height / 2.0f);
+
+}
 
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -50,12 +97,15 @@
 }
 
 - (CAShapeLayer *)shapeLayer {
-    return (CAShapeLayer *)self.layer;
+    return _fillBackground ? _arcLayer : (CAShapeLayer*)self.layer;
 }
 
 - (void)commonInit {
     self.animationDuration = 0.3;
     self.progress = 0;
+    
+    _ringBackground = [[UIImageView alloc] init];
+    [self addSubview: _ringBackground];
     
     [self addTarget:self action:@selector(didTouchDown) forControlEvents:UIControlEventTouchDown];
     [self addTarget:self action:@selector(didTouchUpInside) forControlEvents:UIControlEventTouchUpInside];
@@ -86,7 +136,16 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    
+    _fillBackground.frame = CGRectOffset(_fillBackground.bounds,
+                                         self.bounds.size.width / 2.0f - _fillBackground.bounds.size.width / 2.0f,
+                                         self.bounds.size.height / 2.0f - _fillBackground.bounds.size.height / 2.0f);
+    _fillBackground.layer.mask.frame = _fillBackground.bounds;
+    _ringBackground.frame = CGRectOffset(_ringBackground.bounds,
+                                         self.bounds.size.width / 2.0f - _ringBackground.bounds.size.width / 2.0f,
+                                         self.bounds.size.height / 2.0f - _ringBackground.bounds.size.height / 2.0f);
+    _arcLayer.frame = CGRectOffset(self.bounds,
+                                   _fillBackground.bounds.size.width / 2.0f - self.bounds.size.width / 2.0f,
+                                   _fillBackground.bounds.size.height / 2.0f - self.bounds.size.height / 2.0f);
     const CGFloat offset = 4;
     CGRect valueLabelRect = self.bounds;
     valueLabelRect.origin.x += offset;
@@ -95,7 +154,8 @@
     
     self.layer.cornerRadius = self.frame.size.width / 2.0f;
     self.shapeLayer.path = [self layoutPath].CGPath;
-    
+    ((CAShapeLayer*)_fillBackground.layer.mask).path = [self layoutMaskPath].CGPath;
+
     CGFloat stopViewSizeValue = MIN(self.bounds.size.width, self.bounds.size.height);
     CGSize stopViewSize = CGSizeMake(stopViewSizeValue, stopViewSizeValue);
     const CGFloat stopViewSizeRatio = 0.35;
@@ -121,6 +181,24 @@
                                       startAngle:startAngle
                                         endAngle:endAngle
                                        clockwise:YES];
+}
+
+- (UIBezierPath *)layoutMaskPath {
+    const double TWO_M_PI = 2.0 * M_PI;
+    const double startAngle = 0.75 * TWO_M_PI;
+    const double endAngle = startAngle + TWO_M_PI * self.progress;
+    
+    CGFloat width = _fillBackground.frame.size.width;
+    UIBezierPath *path = [[UIBezierPath alloc] init];
+    [path moveToPoint: CGPointMake(width/2.0f, width/2.0f)];
+    [path addLineToPoint: CGPointMake(width/2.0f, 0.0f)];
+    [path addArcWithCenter: CGPointMake(width/2.0f, width/2.0f)
+                    radius: width/2.0f
+                startAngle: startAngle
+                  endAngle: endAngle
+                 clockwise: YES];
+    [path closePath];
+    return path;
 }
 
 
@@ -198,6 +276,7 @@
 
 - (void)updatePath {
     self.shapeLayer.path = [self layoutPath].CGPath;
+    ((CAShapeLayer*)_fillBackground.layer.mask).path = [self layoutMaskPath].CGPath;
 }
 
 - (void)updateLabel {
@@ -257,9 +336,11 @@
         
         _progress = self.fromProgress + d * (self.toProgress - self.fromProgress);
         UIBezierPath *path = [self layoutPath];
+        UIBezierPath *maskPath = [self layoutMaskPath];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             self.shapeLayer.path = path.CGPath;
+            ((CAShapeLayer*)_fillBackground.layer.mask).path = maskPath.CGPath;
             [self updateLabel];
         });
     });

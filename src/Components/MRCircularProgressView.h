@@ -36,6 +36,12 @@
  */
 @property (nonatomic, assign) CFTimeInterval animationDuration;
 
+@property (nonatomic, strong) UIImage *fillBackgroundImage;
+@property (nonatomic, assign) CGFloat fillBackgroundAlpha;
+
+@property (nonatomic, strong) UIImage *ringBackgroundImage;
+@property (nonatomic, assign) CGFloat ringBackgroundAlpha;
+
 /**
  Change progress animated.
  
@@ -46,5 +52,7 @@
  @param animated Specify YES to animate the change or NO if you do not want the change to be animated.
  */
 - (void)setProgress:(float)progress animated:(BOOL)animated;
+
+- (CAShapeLayer *)shapeLayer;
 
 @end
