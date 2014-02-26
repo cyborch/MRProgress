@@ -51,6 +51,8 @@
         _arcLayer = [[CAShapeLayer alloc] init];
         [_fillBackground.layer addSublayer: _arcLayer];
         [self addSubview: _fillBackground];
+        [self bringSubviewToFront: _startCap];
+        [self bringSubviewToFront: _endCap];
 
         self.shapeLayer.lineWidth = ((CAShapeLayer*)self.layer).lineWidth;
         self.shapeLayer.fillColor = UIColor.clearColor.CGColor;
