@@ -29,7 +29,6 @@
 @property (nonatomic, readonly) UIImageView *startCap;
 @property (nonatomic, readonly) UIImageView *endCap;
 @property (nonatomic, readonly) UIImageView *endSecondaryCap;
-@property (nonatomic, readonly) CAShapeLayer *arcLayer;
 
 @end
 

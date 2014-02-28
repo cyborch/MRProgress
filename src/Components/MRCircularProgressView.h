@@ -51,6 +51,8 @@
 @property (nonatomic, strong) UIImage *endCapSecondaryImage;
 @property (nonatomic, assign) CGFloat endCapSecondaryAlpha;
 
+@property (nonatomic, readonly) CAShapeLayer *arcLayer;
+
 /**
  Change progress animated.
  
