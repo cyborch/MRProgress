@@ -28,6 +28,7 @@
 @property (nonatomic, readonly) UIImageView *ringBackground;
 @property (nonatomic, readonly) UIImageView *startCap;
 @property (nonatomic, readonly) UIImageView *endCap;
+@property (nonatomic, readonly) UIImageView *endSecondaryCap;
 @property (nonatomic, readonly) CAShapeLayer *arcLayer;
 
 @end
@@ -99,6 +100,16 @@
     [self setEndCapTranform];
 }
 
+- (void)setEndCapSecondaryImage:(UIImage *)endCapSecondaryImage
+{
+    _endSecondaryCap.image = endCapSecondaryImage;
+    _endSecondaryCap.frame = CGRectMake(self.bounds.size.width / 2.0f,
+                                        self.bounds.size.height / 2.0f - endCapSecondaryImage.size.height / 2.0f,
+                                        endCapSecondaryImage.size.width,
+                                        endCapSecondaryImage.size.height);
+    [self setEndCapTranform];
+}
+
 - (void)setStartCapAlpha:(CGFloat)startCapAlpha
 {
     _startCapAlpha = startCapAlpha;
@@ -109,6 +120,12 @@
 {
     _endCapAlpha = endCapAlpha;
     _endCap.alpha = endCapAlpha;
+}
+
+- (void)setEndCapSecondaryAlpha:(CGFloat)endCapSecondaryAlpha
+{
+    _endCapSecondaryAlpha = endCapSecondaryAlpha;
+    _endSecondaryCap.alpha = endCapSecondaryAlpha;
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -146,6 +163,8 @@
     [self addSubview: _startCap];
     _endCap = [[UIImageView alloc] init];
     [self addSubview: _endCap];
+    _endSecondaryCap = [[UIImageView alloc] init];
+    [self addSubview: _endSecondaryCap];
     
     [self addTarget:self action:@selector(didTouchDown) forControlEvents:UIControlEventTouchDown];
     [self addTarget:self action:@selector(didTouchUpInside) forControlEvents:UIControlEventTouchUpInside];
@@ -256,10 +275,15 @@
     const CGFloat radius = self.bounds.size.width / 2.0f;
     
     _endCap.transform = CGAffineTransformIdentity;
+    _endSecondaryCap.transform = CGAffineTransformIdentity;
     _endCap.frame = CGRectMake(radius + (radius * (cos(endAngle))) - _endCap.image.size.width / 2.0f,
                                radius + (radius * (sin(endAngle))) - _endCap.image.size.height / 2.0f,
                                _endCap.image.size.width, _endCap.image.size.height);
+    _endSecondaryCap.frame = CGRectMake(radius + (radius * (cos(endAngle))) - _endSecondaryCap.image.size.width / 2.0f,
+                                        radius + (radius * (sin(endAngle))) - _endSecondaryCap.image.size.height / 2.0f,
+                                        _endSecondaryCap.image.size.width, _endSecondaryCap.image.size.height);
     _endCap.transform = CGAffineTransformMakeRotation(endAngle - startAngle);
+    _endSecondaryCap.transform = CGAffineTransformMakeRotation(endAngle - startAngle);
 }
 
 #pragma mark - Hook tintColor

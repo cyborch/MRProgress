@@ -48,6 +48,9 @@
 @property (nonatomic, strong) UIImage *endCapImage;
 @property (nonatomic, assign) CGFloat endCapAlpha;
 
+@property (nonatomic, strong) UIImage *endCapSecondaryImage;
+@property (nonatomic, assign) CGFloat endCapSecondaryAlpha;
+
 /**
  Change progress animated.
  
